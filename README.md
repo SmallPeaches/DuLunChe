@@ -4,7 +4,7 @@ Python独轮车工具。
 
 ## 前置    
 - Python 3.7+    
-- 设置cookies。在目录下新建cookies.txt，把B站的cookies复制粘贴到里面保存。cookies获取方法：打开B站主页，然后按F12，选择控制台，然后输入`document.cookie`回车得到的就是cookies      
+- 设置cookies。在目录下新建cookies.txt，把B站的cookies复制粘贴到里面保存。cookies获取方法可以参考：https://github.com/XiaoMiku01/bili-live-heart/blob/master/doc_old/bili.md      
 
 **注意：此cookies包含了B站的登陆信息，不要将它分享给任何人！**
 
