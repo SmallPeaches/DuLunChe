@@ -17,8 +17,8 @@ def read_text(fpath,mode):
                     text.append(t[:30])
     else:
         with open(fpath,'r',encoding='utf-8') as f:
-            text_list = f.read()
-            str_list = re.split(r"[\n,，.。～！、;；]|(\s)",text_list)
+            text_list = f.read().replace(' ','')
+            str_list = re.split(r"[\n,，.。～！、;；]",text_list)
             str_list = [s for s in str_list if s and len(s.strip())>0]
             p = 0
             while p < len(str_list):
