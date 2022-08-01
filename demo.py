@@ -27,6 +27,11 @@ while 1:
     
     for i in range(num):
         rt = sender.send_danmu(args.rid,text)
+        if rt.get('code') != 0:
+            print('登陆错误.')
+            print(rt)
+            exit(0)
+
         if rt.get('msg','') == '':
             print(f'独轮车 {i+1}/{num}: {text}.')
             time.sleep(args.timesplit)

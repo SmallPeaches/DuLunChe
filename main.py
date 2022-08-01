@@ -47,7 +47,7 @@ def read_text(fpath,mode):
 def get_mode(fpath):
     with open(fpath,'r',encoding='utf-8') as f:
         text_list = f.readlines()
-        sen_max = len(max(text_list))
+        sen_max = max([len(x) for x in text_list])
         if sen_max > 40:
             mode = 'shuoshu'
         else:
