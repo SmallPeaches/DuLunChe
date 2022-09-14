@@ -3,7 +3,10 @@ Python独轮车工具。
 专门为飞天狙直播间开发的独轮车、说书一体化工具。        
 
 ## 新功能   
-**表情独轮车**：可以发送B站表情包，表情包应该以#开头，后面接表情ID，例如`#room_23197314_16240`，表情ID可以访问`https://api.live.bilibili.com/xlive/web-ucenter/v2/emoticon/GetEmoticons?platform=pc&room_id=<需要查的直播间号>`，返回数据里面会有表情ID的。    
+**表情独轮车**：可以发送B站表情包，表情包应该以#开头，后面接表情ID，例如`#room_23197314_16240`，表情ID可以访问`https://api.live.bilibili.com/xlive/web-ucenter/v2/emoticon/GetEmoticons?platform=pc&room_id=<需要查的直播间号>`，返回数据里面会有表情ID的。
+**表情独轮车一些好玩的特性**：
+- 发送速度不受限制（它会限制单个表情包的发送速度，但是你几个表情轮流发送就不会有问题）
+- 可以在A直播间发送B直播间的表情包，只要你填写了正确的表情ID    
 
 ## 前置    
 - Python 3.7+    
