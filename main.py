@@ -93,7 +93,15 @@ if __name__ == '__main__':
             continue
 
         for word_cnt,txt in enumerate(text):
-            rt = sender.send_danmu(args.rid,txt)
+            if txt.startswith('#') and not txt.startswith('##'):
+                txt = txt[1:]
+                emoticon = 1
+                mode = '表情独轮车'
+            else:
+                if txt.startswith('##'):
+                    txt = txt[1:]
+                emoticon = 0
+            rt = sender.send_danmu(args.rid,txt,emoticon=emoticon)
             dm_cnt += 1
             if rt['msg'] != '':
                 kill_cnt += 1
