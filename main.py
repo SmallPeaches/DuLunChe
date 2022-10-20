@@ -2,7 +2,9 @@ import argparse
 import os
 import re
 import time
-from sender.biliapi import BiliLiveAPI
+import requests
+from sender.sender import Sender
+import http.cookiejar as cookielib
 
 def read_text(fpath,mode):
     text = []
@@ -57,9 +59,9 @@ def get_mode(fpath):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--cookiespath',type=str,default='./cookies.txt')
-    parser.add_argument('--rid',type=str,default='23197314')
+    parser.add_argument('-r','--rid',type=str,default='23197314')
     parser.add_argument('--txtpath',type=str,default='./text.txt')
-    parser.add_argument('--interval',type=float,default=20)
+    parser.add_argument('-i','--interval',type=float,default=20)
     parser.add_argument('--mode',choices=['auto','shuoshu','dulunche'],default='auto')
     args = parser.parse_args()
 
@@ -72,13 +74,15 @@ if __name__ == '__main__':
 
     with open(args.cookiespath,'r',encoding='utf-8') as f:
         cookies = f.read().strip()
-    sender = BiliLiveAPI(cookies)
-
-    if sender.get_room_info(args.rid)['code'] != 0:
-        print('Room error.')
+        if cookies.startswith('#'):
+            cookies = cookielib.LWPCookieJar(filename='./cookies.txt')
+            cookies.load(ignore_discard=True)
+            cookies = requests.utils.dict_from_cookiejar(cookies)
+    sender = Sender(cookies,args.rid)
     
     dm_cnt = 0
     kill_cnt = 0
+    t0 = time.time()
     
     while 1:
         if len(text) < 1:
@@ -94,25 +98,22 @@ if __name__ == '__main__':
 
         for word_cnt,txt in enumerate(text):
             if txt.startswith('#') and not txt.startswith('##'):
-                txt = txt[1:]
-                emoticon = 1
                 mode = '表情独轮车'
-            else:
-                if txt.startswith('##'):
-                    txt = txt[1:]
-                emoticon = 0
-            rt = sender.send_danmu(args.rid,txt,emoticon=emoticon)
+                
+            status,msg = sender.sendx(txt)
             dm_cnt += 1
-            if rt['msg'] != '':
-                kill_cnt += 1
-                print(f'{mode} {word_cnt+1}/{len(text)} was killed ({rt["msg"]}): {txt}.')
-                time.sleep(5)
-            else:
+            if status:
                 print(f'{mode} {word_cnt+1}/{len(text)}, total {dm_cnt:04d}: {txt}.')
                 time.sleep(args.interval)
+            else:
+                kill_cnt += 1
+                print(f'{mode} {word_cnt+1}/{len(text)} was killed ({msg}): {txt}.')
+                time.sleep(5)
 
-            new_text = read_text(args.txtpath,mode=args.mode)
-            if new_text != text:
-                text = new_text
-                print('Refresh text...')
-                break
+            if (time.time()-t0) > 15:
+                t0 = time.time()
+                new_text = read_text(args.txtpath,mode=args.mode)
+                if new_text != text:
+                    text = new_text
+                    print('Refresh text...')
+                    break

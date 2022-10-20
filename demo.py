@@ -1,7 +1,7 @@
 import argparse
 import time
 
-from sender.biliapi import BiliLiveAPI
+from sender.sender import Sender
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--cookiespath',type=str,default='./cookies.txt')
@@ -11,31 +11,34 @@ args = parser.parse_args()
 
 with open(args.cookiespath,'r',encoding='utf-8') as f:
     cookies = f.read().strip()
-sender = BiliLiveAPI(cookies)
-
-if sender.get_room_info(args.rid)['code'] != 0:
-    print('Room error.')
+sender = Sender(cookies,rid=args.rid)
 
 while 1:
-    text = input('请输入弹幕文本和次数：')
+    text = input('请输入弹幕文本、次数和间隔：')
+    num = 1
+    interval = args.timesplit
     try:
-        if len(text.split(' ')) > 1:
+        if len(text.split(' ')) > 2:
+            interval = float(text.split(' ')[-1])
+            num = int(text.split(' ')[-2])
+            text = ' '.join(text.split(' ')[:-2])
+        elif len(text.split(' ')) > 1:
             num = int(text.split(' ')[-1])
             text = ' '.join(text.split(' ')[:-1])
     except:
-        num = 1
+        pass
     
-    for i in range(num):
-        rt = sender.send_danmu(args.rid,text)
-        if rt.get('code') != 0:
-            print('登陆错误.')
-            print(rt)
-            exit(0)
-
-        if rt.get('msg','') == '':
-            print(f'独轮车 {i+1}/{num}: {text}.')
-            time.sleep(args.timesplit)
-        else:
-            print(f'独轮车 {i+1}/{num} was killed ({rt["msg"]}): {text}.')
-            time.sleep(1.0)
+    i = 0
+    while i < num:
+        for t in text.split(','):
+            if not t:
+                continue
+            status,msg = sender.sendx(t)
+            if status:
+                print(f'独轮车 {i+1}/{num}: {t}.')
+                time.sleep(interval)
+            else:
+                print(f'独轮车 {i+1}/{num} was killed ({msg}): {t}.')
+                time.sleep(1.0)
+            i += 1
     print('独轮车结束.')

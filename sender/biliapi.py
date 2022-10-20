@@ -5,6 +5,7 @@ import re
 import time
 from typing import List, Union
 import requests
+import http.cookiejar as cookielib
 
 class BaseAPI:
     headers = {
@@ -18,7 +19,7 @@ class BaseAPI:
         self.timeout=timeout
 
 class BiliLiveAPI(BaseAPI):
-    def __init__(self,cookies:Union[List[str],str],timeout=(3.05,5)):
+    def __init__(self,cookies:Union[List[str],str,dict],timeout=(3.05,5)):
         """B站直播相关API"""
         super().__init__(timeout)
         self.headers = dict(self.headers,
@@ -28,10 +29,15 @@ class BiliLiveAPI(BaseAPI):
         self.csrfs = []
         self.rnd=int(time.time())
         if isinstance(cookies,str):    cookies=[cookies]
-        for i in range(len(cookies)):
+        if isinstance(cookies,list):
+            for i in range(len(cookies)):
+                self.sessions.append(requests.session())
+                self.csrfs.append("")
+                self.update_cookie(cookies[i],i)
+        if isinstance(cookies,dict):
             self.sessions.append(requests.session())
-            self.csrfs.append("")
-            self.update_cookie(cookies[i],i)
+            self.csrfs.append(cookies.get('bili_jct'))
+            requests.utils.add_dict_to_cookiejar(self.sessions[0].cookies,cookies)
     
     def get_room_info(self,roomid,timeout=None) -> dict:
         """获取直播间标题、简介等信息"""
