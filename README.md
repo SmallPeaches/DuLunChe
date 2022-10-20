@@ -10,6 +10,7 @@ Python独轮车工具。
 
 ## 前置    
 - Python 3.7+    
+- **新版本不用设置cookies，直接运行login.py扫码登录就行**        
 - 设置cookies。在目录下新建cookies.txt，把B站的cookies复制粘贴到里面保存。cookies获取方法可以参考：https://github.com/XiaoMiku01/bili-live-heart/blob/master/doc_old/bili.md      
 
 **注意：此cookies包含了B站的登陆信息，不要将它分享给任何人！**
