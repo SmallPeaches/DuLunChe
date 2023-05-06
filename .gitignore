@@ -1,0 +1,8 @@
+/.vscode
+
+/cookies**
+/test**
+**.exe
+**.pyc
+**.mp4
+**.png

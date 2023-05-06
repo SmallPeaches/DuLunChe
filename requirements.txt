@@ -1,0 +1,5 @@
+aiohttp
+pillow
+pyyaml
+requests
+qrcode
