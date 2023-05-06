@@ -119,14 +119,14 @@ class AutoDuLunChe():
             num = len(self.dmlist)
             if num < self.check_length*self.min_freq:
                 logging.info(f'弹幕过少，设置频率阈值 {self.min_freq}条/秒，实际发送速率 {num/self.check_length}条/秒，暂停开车.')
-                time.sleep(max(self.interval.values()))
+                time.sleep(self.check_length)
                 continue
             top_danmu = self.dmlist.count(top=self.random_size)
-            dm = random.choice(top_danmu)[0]
+            dm, _ = random.choice(top_danmu)
 
             try:
                 rt = self.bapi.send_danmu(self.room_id, msg=dm.content, emoticon=int(dm.dmtype=='emoticon'))
-                if rt['code'] == 0:
+                if rt['msg'] == '':
                     self.total_cnt += 1
                     logging.info(f'独轮车 {self.total_cnt:04d}: {dm.content} 发送成功.')
                 else:
