@@ -136,7 +136,7 @@ if __name__ == '__main__':
             else:
                 kill_cnt += 1
                 print(f'{mode} {word_cnt+1}/{len(text)} was killed ({msg}): {txt}.')
-                time.sleep(5)
+                time.sleep(min(args.interval,5))
 
             mode = get_mode(args.txt)
             new_text = read_text(args.txt,mode=mode)
