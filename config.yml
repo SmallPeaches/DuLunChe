@@ -1,7 +1,7 @@
 # B站房间号
-room_id: 23197314
+room_id: 1733394496
 # cookies保存文件名称
-cookies: cookies.txt
+cookies: cookies.json
 # 检测时长t
 check_length: 30
 # 最小弹幕频率f

@@ -3,3 +3,4 @@ pillow
 pyyaml
 requests
 qrcode
+brotli

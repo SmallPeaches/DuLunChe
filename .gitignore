@@ -7,3 +7,6 @@
 **.mp4
 **.png
 **.json
+.DS_Store
+/.venv
+text.txt

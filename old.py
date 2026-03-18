@@ -2,6 +2,7 @@ import argparse
 import json
 import re
 import time
+import yaml
 from dulunche.biliapi import BiliLiveAPI
 
 def read_text(fpath,mode):
@@ -14,7 +15,7 @@ def read_text(fpath,mode):
                 t = t.strip()
                 # t = re.sub(r"[\n,，.。～！、;；]",' ',t)
                 if len(t) > 0 and not t.startswith('//'):
-                    text.append(t[:30])
+                    text.append(t[:40])
                 if t == '//':
                     break
     else:
@@ -24,30 +25,33 @@ def read_text(fpath,mode):
                 line = line.strip()
                 if line == '//':
                     break
-                str_list = re.split(r"[,，.。～！、;；]",line)
-                str_list = [s for s in str_list if s and len(s.strip())>0]
+                parts = re.split(r"([,，.。～！、;；])",line)
+                str_list = []
+                for i in range(0, len(parts), 2):
+                    seg = parts[i]
+                    if i + 1 < len(parts):
+                        seg += parts[i + 1]
+                    seg = seg.strip()
+                    if seg:
+                        str_list.append(seg)
                 p = 0
                 while p < len(str_list):
                     t = str_list[p]
-                    if len(t) < 10:
-                        while p < len(str_list)-1 and len(t+' '+str_list[p+1]) < 25:
-                            t += ' '+str_list[p+1]
-                            p += 1
-                        text.append(t)
+                    while p < len(str_list)-1 and len(t+str_list[p+1]) <= 35:
                         p += 1
-                    elif len(t) > 30:
-                        if len(t) < 60:
+                        t += str_list[p]
+                    if len(t) > 40:
+                        if len(t) < 80:
                             t0 = t[:len(t)//2]
                             t1 = t[len(t)//2:]
                         else:
-                            t0 = t[0:30]
-                            t1 = t[30:60]
+                            t0 = t[0:40]
+                            t1 = t[40:80]
                         text.append(t0)
                         text.append(t1)
-                        p += 1
                     else:
                         text.append(t)
-                        p += 1
+                    p += 1
     return text
 
 def get_mode(fpath):
@@ -61,13 +65,24 @@ def get_mode(fpath):
     return mode 
 
 if __name__ == '__main__':
+    with open('config.yml', 'r', encoding='utf-8') as f:
+        config = yaml.safe_load(f)
+    
     parser = argparse.ArgumentParser()
-    parser.add_argument('--cookies',type=str,default='./cookies.json')
-    parser.add_argument('-r','--rid',type=str,default='23197314')
+    parser.add_argument('--cookies',type=str,default=config.get('cookies', './cookies.json'))
+    parser.add_argument('-r','--rid',type=str,default=str(config.get('room_id', '1733394496')))
     parser.add_argument('-t','--txt',type=str,default='./text.txt')
-    parser.add_argument('-i','--interval',type=float,default=10)
+    parser.add_argument('-i','--interval',type=float,default=None)
     parser.add_argument('--mode',choices=['auto','shuoshu','dulunche'],default='auto')
     args = parser.parse_args()
+    
+    interval_config = config.get('interval', 10)
+    if isinstance(interval_config, dict):
+        if args.interval is None:
+            args.interval = 10 
+    else:
+        if args.interval is None:
+            args.interval = interval_config
 
     if args.mode == 'auto':
         args.mode = get_mode(args.txt)
@@ -115,6 +130,7 @@ if __name__ == '__main__':
                 rt = bapi.send_danmu(roomid=args.rid,msg=txt,emoticon=int(mode=='表情独轮车'))
                 if rt['msg'] == '':
                     status = True
+                    msg = ''
                 else:
                     status = False
                     msg = rt['msg']
